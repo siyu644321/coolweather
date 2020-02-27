@@ -5,8 +5,6 @@ package com.coolweather.android.db;
 public class City extends LitePalSupport {
     private int id;
     private int cityCode;
-
-
     private String cityName;
     private int provinceId;
 
