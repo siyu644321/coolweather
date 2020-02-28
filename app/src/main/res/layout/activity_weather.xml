@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context=".WeatherActivity">
+
+    <!--设置每日一图，并居中裁剪-->
+    <ImageView
+        android:id="@+id/bing_pic_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        />
+
+    <!--添加滚动条-->
+    <ScrollView
+        android:id="@+id/weather_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:overScrollMode="never"
+        >
+        <!--滚动条中添加布局-->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
+            >
+            <!--引入布局文件-->
+            <include layout = "@layout/title"/>
+            <include layout = "@layout/now"/>
+            <include layout= "@layout/forecast"/>
+            <include layout = "@layout/aqi"/>
+            <include layout = "@layout/suggestion"/>
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>
