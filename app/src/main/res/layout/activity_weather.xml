@@ -8,6 +8,12 @@
     android:background="@color/colorPrimary"
     tools:context=".WeatherActivity">
 
+    <!--添加滑动菜单开始-->
+    <android.support.v4.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
     <!--设置每日一图，并居中裁剪-->
     <ImageView
         android:id="@+id/bing_pic_img"
@@ -16,7 +22,15 @@
         android:scaleType="centerCrop"
         />
 
-    <!--添加滚动条-->
+    <!--添加下拉布局..-->
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars = "none"
+        android:overScrollMode="never"
+        >
+    <!--滑动控件第一子控件 添加滚动条-->
     <ScrollView
         android:id="@+id/weather_layout"
         android:layout_width="match_parent"
@@ -39,4 +53,16 @@
             <include layout = "@layout/suggestion"/>
         </LinearLayout>
     </ScrollView>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+        <!--第二子控件, 遍历城市的碎片-->
+        <fragment
+            android:id = "@+id/choose_area_fragment"
+            android:name="com.coolweather.android.ChooseAreaFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity = "start"/>
+
+        <!--添加滑动菜单结束-->
+    </android.support.v4.widget.DrawerLayout>
 </FrameLayout>

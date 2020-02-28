@@ -4,10 +4,14 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -29,6 +33,15 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class WeatherActivity extends AppCompatActivity {
+
+    // 滑动控件对象
+    public DrawerLayout drawerLayout;
+    // 滑动布局的控制按钮
+    private Button navButton;
+
+    // 下拉菜单
+    public SwipeRefreshLayout swipeRefresh;
+    private String mWeatherId;
 
     // 定义控件对象
     private ScrollView weatherLayout;
@@ -75,6 +88,22 @@ public class WeatherActivity extends AppCompatActivity {
         // 初始化背景图片控件,并动态加载背景图片
         bingPicImg = (ImageView)findViewById(R.id.bing_pic_img);
 
+        // 创建下拉刷新
+        swipeRefresh = (SwipeRefreshLayout)findViewById(R.id.swipe_refresh);
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary); // 设置下拉转圈颜色
+
+
+        // 获取滑动布局/控制滑动布局按钮的对象
+        drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        navButton = (Button)findViewById(R.id.nav_button);
+        navButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 按钮事件,打开布局控件
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
+
 
         // 用于存储到shared_prefs文件夹下
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -93,16 +122,28 @@ public class WeatherActivity extends AppCompatActivity {
         if(weatherString != null){
             //数据已在缓存中,直接解析天气数据
             Weather weather = Utility.handleWeatherResponse(weatherString);
+            // [保存数据ID]
+            mWeatherId = weather.basic.weatherId;
             // 将数据解析并显示到界面上
             showWeatherInfo(weather);
         }else{
             // 无缓存数据,通过服务器查询天气
-            String weatherId = getIntent().getStringExtra("weather_id");
+            mWeatherId = getIntent().getStringExtra("weather_id");
             // 隐藏天气布局滚动条,否则会很奇怪..
             weatherLayout.setVisibility(View.INVISIBLE);
             // 通过服务器查询
-            requestWeather(weatherId);
+            requestWeather(mWeatherId);
         }
+
+        // 刷新数据监听
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // 根据ID，请求网络数据
+                requestWeather(mWeatherId);
+            }
+        });
+
     }
 
     // ---> 从必应服务器上获取图片
@@ -136,12 +177,9 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     // ---> 根据天气ID,在服务器请求weather数据
-    private void requestWeather(final String weatherId) {
+    public void requestWeather(final String weatherId) {
         String weatherUrl = "http://guolin.tech/api/weather?cityid="+
                 weatherId + "&key=bc0418b57b2d4918819d3974ac1285d9";
-
-        // 显示背景图片
-        loadBingPic();
 
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             // 获取到数据
@@ -165,7 +203,11 @@ public class WeatherActivity extends AppCompatActivity {
                         Toast.makeText(WeatherActivity.this,"获取天气信息失败",
                                 Toast.LENGTH_SHORT).show();
                     }
+                    // 关闭刷新..
+                    swipeRefresh.setRefreshing(false);
                 });
+
+
             }
 
             // 数据获取失败
@@ -175,9 +217,13 @@ public class WeatherActivity extends AppCompatActivity {
                 // 启动Ui线程,提示获取数据失败
                 runOnUiThread(()->{
                     Toast.makeText(WeatherActivity.this,"获取天气信息失败",Toast.LENGTH_SHORT).show();
+                    swipeRefresh.setRefreshing(false); // 关闭刷新
                 });
             }
         });
+
+        // 显示背景图片
+        loadBingPic();
     }
 
 
